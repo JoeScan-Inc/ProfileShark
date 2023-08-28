@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="F3H.ProfileShark.ProfileDetail.ProfileDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:F3H.ProfileShark.ProfileDetail"
+             xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <GroupBox Margin="3" Padding="0">
+        <GroupBox.Header>
+            <StackPanel MinHeight="25" Orientation="Horizontal">
+                <TextBlock
+                    Margin="3"
+                    VerticalAlignment="Center"
+                    FontFamily="{StaticResource MaterialDesignIcons}"
+                    Foreground="{DynamicResource {x:Static adonisUi:Brushes.AccentBrush}}">
+                    &#xF1860;
+                </TextBlock>
+                <TextBlock Margin="3" VerticalAlignment="Center">Profile Points</TextBlock>
+            </StackPanel>
+        </GroupBox.Header>
+        <DataGrid
+            Grid.Column="1"
+            AutoGenerateColumns="False"
+            CanUserAddRows="False"
+            IsReadOnly="True"
+            ItemsSource="{Binding SelectedProfile.Data}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding X, StringFormat={}{0:F2}}" Header="X" />
+                <DataGridTextColumn Binding="{Binding Y, StringFormat={}{0:F2}}" Header="Y" />
+                <DataGridTextColumn Binding="{Binding Brightness}" Header="Brightness" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </GroupBox>
+</UserControl>
