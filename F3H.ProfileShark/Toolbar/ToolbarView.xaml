@@ -7,8 +7,8 @@
     xmlns:local="clr-namespace:F3H.ProfileShark.Toolbar"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:md="https://github.com/fantasticfiasco/mvvm-dialogs"
-    d:DesignHeight="300"
-    d:DesignWidth="300"
+    d:DesignHeight="50"
+    d:DesignWidth="600"
     md:DialogServiceViews.IsRegistered="True"
     mc:Ignorable="d">
     <Grid>
@@ -29,28 +29,13 @@
                 <Setter Property="Margin" Value="3,0" />
             </Style>
         </Grid.Resources>
-        <DockPanel LastChildFill="False">
-            <Image
-                Height="42"
-                Margin="10,5"
-                HorizontalAlignment="Right"
-                RenderOptions.BitmapScalingMode="Fant"
-                Source="../Assets/f3h.png" />
-            <TextBlock
-                Margin="5,5,120,5"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Center"
-                FontFamily="{StaticResource InterThin}"
-                FontSize="33"
-                TextAlignment="Right">
-                ProfileShark
-            </TextBlock>
+        <DockPanel LastChildFill="False" Background="{DynamicResource {x:Static adonisUi:Brushes.Layer1BackgroundBrush}}">
             <Button
                 x:Name="Load"
                 Height="30"
                 MinWidth="80"
                 MaxWidth="140"
-                Margin="5,25,5,5"
+                Margin="5,5,5,5"
                 DockPanel.Dock="Left"
                 Focusable="False">
                 <StackPanel Orientation="Horizontal">
@@ -59,6 +44,40 @@
                 </StackPanel>
             </Button>
 
+            <Button
+                x:Name="LoadPrevious"
+                Width="30"
+                Height="30"
+                Margin="25,5,3,5"
+                Padding="0"
+                DockPanel.Dock="Left"
+                Focusable="False">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource ButtonIcon}">&#xF004D;</TextBlock>
+                </StackPanel>
+            </Button>
+            <TextBox
+                Height="30"
+                MinWidth="120"
+                Margin="5"
+                VerticalContentAlignment="Center"
+                FontSize="16"
+                Foreground="{DynamicResource {x:Static adonisUi:Brushes.AccentBrush}}"
+                IsReadOnly="True"
+                Text="{Binding DataManager.CurrentFileShort, Mode=OneWay}"
+                TextAlignment="Center" />
+            <Button
+                x:Name="LoadNext"
+                Width="30"
+                Height="30"
+                Margin="3,5,5,5"
+                Padding="0"
+                DockPanel.Dock="Left"
+                Focusable="False">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource ButtonIcon}">&#xF0054;</TextBlock>
+                </StackPanel>
+            </Button>
         </DockPanel>
     </Grid>
 

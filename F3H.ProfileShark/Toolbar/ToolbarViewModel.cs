@@ -1,4 +1,5 @@
-﻿using Caliburn.Micro;
+﻿using System.IO;
+using Caliburn.Micro;
 using F3H.ProfileShark.Models;
 using F3H.ProfileShark.Shared;
 using MvvmDialogs;
@@ -10,16 +11,16 @@ namespace F3H.ProfileShark.Toolbar;
 public class ToolbarViewModel : Screen
 {
     private readonly IDialogService dialogService;
-    public DataManager Data { get; }
+    public DataManager DataManager { get; }
     public IEventAggregator EventAggregator { get; }
     public ILogger Logger { get; }
 
-    public ToolbarViewModel(DataManager data,
+    public ToolbarViewModel(DataManager dataManager,
        IEventAggregator eventAggregator,
         IDialogService dialogService, ILogger logger)
     {
         this.dialogService = dialogService;
-        Data = data;
+        DataManager = dataManager;
         EventAggregator = eventAggregator;
         Logger = logger;
     }
@@ -39,22 +40,54 @@ public class ToolbarViewModel : Screen
         bool? success = dialogService.ShowOpenFileDialog(this, openFileDialogSettings);
         if (success == true)
         {
-            try
-            {
-                EventAggregator.PublishOnUIThreadAsync(true);
-                Data.SetProfiles(await DataReader.ReadProfilesC(openFileDialogSettings.FileName));
-            }
-            catch (Exception e)
-            {
-
-            }
-            finally
-            {
-                EventAggregator.PublishOnUIThreadAsync(false);
-            }
-           
+            await LoadFile(openFileDialogSettings.FileName);
         }
     }
-   
+
+    private async Task LoadFile(string fileName)
+    {
+        try
+        {
+            await EventAggregator.PublishOnUIThreadAsync(true);
+            DataManager.SetProfiles(await DataReader.ReadProfilesC(fileName));
+            DataManager.CurrentFile = fileName;
+            Refresh();
+        }
+        catch (Exception e)
+        {
+
+        }
+        finally
+        {
+            await EventAggregator.PublishOnUIThreadAsync(false);
+        }
+       
+    }
+
+    public async void LoadPrevious()
+    {
+        await LoadFile(GetNextFile(-1));
+    }
+    public async void LoadNext()
+    {
+        await LoadFile(GetNextFile(1));
+    }
+
+    public bool CanLoadNext => !String.IsNullOrEmpty(DataManager.CurrentFile);
+    public bool CanLoadPrevious => !String.IsNullOrEmpty(DataManager.CurrentFile);
+    
+    private string GetNextFile(int offset)
+    {
+        var dir = Path.GetDirectoryName(DataManager.CurrentFile);
+        var files = Directory.GetFiles(dir, "*.bin");
+        var index = Array.IndexOf(files, DataManager.CurrentFile);
+        if (index == -1)
+        {
+            return "";
+        }
+        // get file at index + offset
+        return files[(index + offset) % files.Length];
+    }
+    
 
 }

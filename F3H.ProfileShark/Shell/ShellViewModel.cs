@@ -10,10 +10,11 @@ using NLog;
 
 namespace F3H.ProfileShark.Shell;
 
-public class ShellViewModel : Screen
+public class ShellViewModel : Screen, IHandle<bool>
 {
     private RawProfile selectedProfile;
     private double encoderPulseInterval;
+    private bool isBusy;
     public DataManager DataManager { get; }
     public ToolbarViewModel ToolBar { get; }
     public RawProfileGridViewModel DataGridView { get; }
@@ -22,9 +23,20 @@ public class ShellViewModel : Screen
     
     public RawBoard3DViewModel RawBoard3D { get; }
     public ProfileDetailViewModel ProfileDetail { get; }
+    public IEventAggregator EventAggregator { get; }
     public ILogger Logger { get; }
 
-   
+    public bool IsBusy
+    {
+        get => isBusy;
+        set
+        {
+            if (value == isBusy) return;
+            isBusy = value;
+            NotifyOfPropertyChange(() => IsBusy);
+        }
+    }
+    
     public ShellViewModel(DataManager dataManager,
         ToolbarViewModel toolBar,
         RawProfileGridViewModel dataGridView,
@@ -32,6 +44,7 @@ public class ShellViewModel : Screen
         TimelinePlotViewModel timelinePlot,
         RawBoard3DViewModel rawBoard3D,
         ProfileDetailViewModel profileDetail,
+        IEventAggregator eventAggregator,
         ILogger logger)
     {
         DataManager = dataManager;
@@ -41,6 +54,17 @@ public class ShellViewModel : Screen
         TimelinePlot = timelinePlot;
         RawBoard3D = rawBoard3D;
         ProfileDetail = profileDetail;
+        EventAggregator = eventAggregator;
+        EventAggregator.SubscribeOnUIThread(this);
         Logger = logger;
     }
+
+    #region Implementation of IHandle<bool>
+
+    public Task HandleAsync(bool message, CancellationToken cancellationToken)
+    {
+        return Task.Run(()=>IsBusy = message, cancellationToken);
+    }
+
+    #endregion
 }

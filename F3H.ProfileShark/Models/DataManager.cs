@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Windows.Data;
 using Caliburn.Micro;
 using F3H.ProfileShark.Helpers;
@@ -40,6 +41,7 @@ public class DataManager : PropertyChangedBase
 
     public IObservableCollection<RawProfile> Profiles { get; } = new BindableCollection<RawProfile>();
     private List<RawProfile> originalData;
+    private string currentFile = "";
 
     public ObservableCollection<KeyValuePair<int, string>> SelectableHeads { get; } =
         new ObservableCollection<KeyValuePair<int, string>>();
@@ -123,6 +125,19 @@ public class DataManager : PropertyChangedBase
             NotifyOfPropertyChange(() => UseFlightsAndWindowFilter);
         }
     }
+
+    public string CurrentFile
+    {
+        get => currentFile;
+        set
+        {
+            if (value == currentFile) return;
+            currentFile = value;
+            NotifyOfPropertyChange(() => CurrentFile);
+            NotifyOfPropertyChange(() => CurrentFileShort);
+        }
+    }
+    public string CurrentFileShort => String.IsNullOrEmpty(CurrentFile)? "No File Loaded" : Path.GetFileName(CurrentFile);
 
     #endregion
 
