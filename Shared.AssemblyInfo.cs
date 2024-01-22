@@ -9,7 +9,7 @@ using System.Reflection;
 [assembly: AssemblyCopyright("Copyright © F3H Consulting 2023")]
 [assembly: AssemblyTrademark("F3H Consulting")]
 
-[assembly: AssemblyDescription("CGV ProfileShark")]
+[assembly: AssemblyDescription("ProfileShark")]
 [assembly: AssemblyMetadata("RepositoryUrl", "https://github.com/fafa3711/ProfileShark")]
 
 #if DEBUG

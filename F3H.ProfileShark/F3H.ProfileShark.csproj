@@ -56,6 +56,9 @@
     <None Remove="Assets\exnovo.png" />
     <None Remove="Assets\f3h.png" />
     <Resource Include="Assets\f3h.png" />
+    <None Update="BestPlaneFit.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 

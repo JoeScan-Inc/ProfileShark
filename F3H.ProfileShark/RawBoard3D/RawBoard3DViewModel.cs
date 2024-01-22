@@ -55,7 +55,7 @@ public class RawBoard3DViewModel : Screen
         this.colorService = colorService;
         DataManager.ProfileDataAdded += (_, _) => UpdateBoardDisplay();
 
-        encoderPulseInterval = 0.0007914088801269108 * 4;
+        encoderPulseInterval = 0.0032728603049680203;
     }
 
     // private Visual3D ModelToVisual3D(StickModel model, bool showLabels = false)
@@ -157,11 +157,55 @@ public class RawBoard3DViewModel : Screen
         return group;
     }
 
+    private ModelVisual3D BoardToVisual3DByHeight(IEnumerable<RawProfile> board)
+    {
+        var first = board.First();
+        var ptsDict = new Dictionary<byte, IList<Point3D>>();
+        
+        foreach (var profile in board)
+        {
+            var z = (profile.EncoderValue - first.EncoderValue) * encoderPulseInterval;
+
+            foreach (var point2D in profile.Data)
+            {
+                var pt3d = new Point3D(point2D.X, point2D.Y, z);
+                var colorValue = BinByDistance(point2D.Y);
+                if (!ptsDict.ContainsKey(colorValue))
+                {
+                    ptsDict[colorValue] = new List<Point3D>();
+                }
+
+                ptsDict[colorValue].Add(pt3d);
+            }
+        }
+
+        var group = new ModelVisual3D();
+
+        foreach (byte col in ptsDict.Keys)
+        {
+            var visual = new PointsVisual3D
+            {
+                Color = colorService.DistancePalette[col],
+                Size = 2,
+                Points = new Point3DCollection(ptsDict[col])
+            };
+            group.Children.Add(visual);
+        }
+
+        return group;
+    }
+    
     private static byte BinByBrightness(double b)
     {
         return (byte)(b); // clamp?
     }
 
+    private static byte BinByDistance(double d)
+    {
+        // convert a range between 0.25 and 1.0 to 0-255
+        return (byte)int.Clamp((int)((d - 0.25) / 0.5 * 255.0), 0, 255);
+    }
+    
     private void UpdateBoardDisplay()
     {
         PerspectiveVisual.Children.Clear();

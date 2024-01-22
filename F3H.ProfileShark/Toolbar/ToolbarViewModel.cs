@@ -11,9 +11,6 @@ namespace F3H.ProfileShark.Toolbar;
 public class ToolbarViewModel : Screen
 {
     private readonly IDialogService dialogService;
-    public DataManager DataManager { get; }
-    public IEventAggregator EventAggregator { get; }
-    public ILogger Logger { get; }
 
     public ToolbarViewModel(DataManager dataManager,
        IEventAggregator eventAggregator,
@@ -24,6 +21,13 @@ public class ToolbarViewModel : Screen
         EventAggregator = eventAggregator;
         Logger = logger;
     }
+
+    public DataManager DataManager { get; }
+    public IEventAggregator EventAggregator { get; }
+    public ILogger Logger { get; }
+
+    public bool CanLoadNext => !String.IsNullOrEmpty(DataManager.CurrentFile);
+    public bool CanLoadPrevious => !String.IsNullOrEmpty(DataManager.CurrentFile);
 
     public async void Load()
     {
@@ -68,14 +72,12 @@ public class ToolbarViewModel : Screen
     {
         await LoadFile(GetNextFile(-1));
     }
+
     public async void LoadNext()
     {
         await LoadFile(GetNextFile(1));
     }
 
-    public bool CanLoadNext => !String.IsNullOrEmpty(DataManager.CurrentFile);
-    public bool CanLoadPrevious => !String.IsNullOrEmpty(DataManager.CurrentFile);
-    
     private string GetNextFile(int offset)
     {
         var dir = Path.GetDirectoryName(DataManager.CurrentFile);
@@ -88,6 +90,4 @@ public class ToolbarViewModel : Screen
         // get file at index + offset
         return files[(index + offset) % files.Length];
     }
-    
-
 }
