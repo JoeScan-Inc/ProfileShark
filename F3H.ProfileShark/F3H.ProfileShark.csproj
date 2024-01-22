@@ -59,6 +59,8 @@
     <None Update="BestPlaneFit.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Remove="Assets\joescan.png" />
+    <Resource Include="Assets\joescan.png" />
   </ItemGroup>
 
 
