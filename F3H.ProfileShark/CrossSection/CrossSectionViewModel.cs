@@ -148,8 +148,8 @@ public class CrossSectionViewModel : Screen
 
         columnAxis = new LinearAxis
         {
-            Minimum = -20,
-            Maximum = 20,
+            Minimum = -8,
+            Maximum = 8,
             PositionAtZeroCrossing = true,
             AxislineStyle = LineStyle.Solid,
             AxislineColor = PlotColorService.MajorGridLineColor,
@@ -170,7 +170,7 @@ public class CrossSectionViewModel : Screen
         rowAxis = new LinearAxis
         {
             Minimum = -1,
-            Maximum = 10,
+            Maximum = 1,
             PositionAtZeroCrossing = true,
             AxislineStyle = LineStyle.Solid,
             AxislineColor = PlotColorService.MajorGridLineColor,

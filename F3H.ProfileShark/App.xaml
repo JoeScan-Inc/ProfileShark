@@ -2,7 +2,8 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
-             xmlns:profileShark="clr-namespace:F3H.ProfileShark">
+             xmlns:profileShark="clr-namespace:F3H.ProfileShark"
+             xmlns:converters="clr-namespace:F3H.ProfileShark.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -26,6 +27,31 @@
                     <FontFamily x:Key="InterUIBlack">pack://application:,,,/F3H.ProfileShark;component/Fonts/#Inter Black</FontFamily>
                     <FontFamily x:Key="InterUIBold">pack://application:,,,/F3H.ProfileShark;component/Fonts/#Inter Bold</FontFamily>
                     <FontFamily x:Key="MaterialDesignIcons">pack://application:,,,/F3H.ProfileShark;component/Fonts/#Material Design Icons</FontFamily>
+                </ResourceDictionary>
+                <ResourceDictionary>
+                    <converters:ComparisonConverter x:Key="ComparisonConverter" />
+                </ResourceDictionary>
+                <ResourceDictionary>
+                    <!--  Converter mapping True to Visible and False to Collapsed  -->
+                    <converters:BoolToVisibilityConverter
+                        x:Key="BoolToVisibilityConverter"
+                        False="Collapsed"
+                        True="Visible" />
+                    <!--  Converter mapping True to Collapsed and False to Visible  -->
+                    <converters:BoolToVisibilityConverter
+                        x:Key="BoolToInverseVisibilityConverter"
+                        False="Visible"
+                        True="Collapsed" />
+                    <!--  Converter mapping True to Collapsed and False to Visible  -->
+                    <converters:BoolToVisibilityConverter
+                        x:Key="BoolToInverseVisibilityConverterHidden"
+                        False="Visible"
+                        True="Hidden" />
+                    <!--  Converter mapping True to Visible and False to Hidden  -->
+                    <converters:BoolToVisibilityConverter
+                        x:Key="BoolToVisibilityConverterHidden"
+                        False="Hidden"
+                        True="Visible" />
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

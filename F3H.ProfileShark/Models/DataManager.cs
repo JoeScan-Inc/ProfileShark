@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows.Data;
 using Caliburn.Micro;
 using F3H.ProfileShark.Helpers;
+using JoeScan.Pinchot;
 using NLog;
 
 namespace F3H.ProfileShark.Models;
@@ -324,4 +325,10 @@ public class DataManager : PropertyChangedBase
     }
 
     #endregion
+
+    public bool ShowCamera(Camera camera)
+    {
+        return ScanHeadFilterByCamera == 0 || (int)camera == ScanHeadFilterByCamera;
+    }
+    
 }

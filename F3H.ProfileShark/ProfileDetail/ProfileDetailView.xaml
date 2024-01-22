@@ -11,7 +11,7 @@
         <GroupBox.Header>
             <StackPanel MinHeight="25" Orientation="Horizontal">
                 <TextBlock
-                    Margin="3"
+                    Margin="8,3,3,3"
                     VerticalAlignment="Center"
                     FontFamily="{StaticResource MaterialDesignIcons}"
                     Foreground="{DynamicResource {x:Static adonisUi:Brushes.AccentBrush}}">
@@ -21,15 +21,14 @@
             </StackPanel>
         </GroupBox.Header>
         <DataGrid
-            Grid.Column="1"
             AutoGenerateColumns="False"
             CanUserAddRows="False"
             IsReadOnly="True"
             ItemsSource="{Binding SelectedProfile.Data}">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding X, StringFormat={}{0:F2}}" Header="X" />
+                <DataGridTextColumn Binding="{Binding X, StringFormat={}{0:F2}}"  Header="X" />
                 <DataGridTextColumn Binding="{Binding Y, StringFormat={}{0:F2}}" Header="Y" />
-                <DataGridTextColumn Binding="{Binding Brightness}" Header="Brightness" />
+                <DataGridTextColumn Binding="{Binding Brightness}" Header="B" />
             </DataGrid.Columns>
         </DataGrid>
     </GroupBox>
