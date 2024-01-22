@@ -1,0 +1,68 @@
+﻿<UserControl
+    x:Class="F3H.ProfileShark.RawBoard3D.DisplaySettingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:cm="http://caliburnmicro.com"
+    xmlns:imaging="clr-namespace:System.Drawing.Imaging;assembly=System.Drawing.Common"
+    xmlns:rawBoard3D="clr-namespace:F3H.ProfileShark.RawBoard3D"
+    d:DesignHeight="300"
+    d:DesignWidth="300"
+    FontSize="10"
+    mc:Ignorable="d">
+
+    <StackPanel Margin="2,40,2,2" Orientation="Vertical">
+        <StackPanel.Resources>
+            <Style TargetType="CheckBox" BasedOn="{StaticResource {x:Type CheckBox}}">
+                <Setter Property="Margin" Value="2"></Setter>
+            </Style>
+        </StackPanel.Resources>
+        <CheckBox x:Name="ShowRawPoints" DockPanel.Dock="Top">Raw Points</CheckBox>
+        <RadioButton
+            MaxHeight="18"
+            Margin="20,2,2,2"
+            Padding="5,2"
+            Focusable="False"
+            FontSize="9"
+            IsChecked="{Binding ColorMode, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static rawBoard3D:DisplayMode.ByIntensity}}"
+            IsEnabled="{Binding ElementName=ShowRawPoints, Path=IsChecked}">
+            Intensity
+        </RadioButton>
+        <RadioButton
+            MaxHeight="18"
+            Margin="20,2,20,2"
+            Padding="5,2"
+            Focusable="False"
+            FontSize="9"
+            IsChecked="{Binding ColorMode, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static rawBoard3D:DisplayMode.ByCamera}}"
+            IsEnabled="{Binding ElementName=ShowRawPoints, Path=IsChecked}">
+            Camera
+        </RadioButton>
+
+       
+        <CheckBox Margin="2,10,2,2" x:Name="OrthographicCamera">Orthographic Projection</CheckBox>
+        <Button
+            cm:Message.Attach="ResetView"
+            Margin="2,10,2,2"
+            MinWidth="40"
+            MaxHeight="18"
+            Padding="5,2"
+            Focusable="False"
+            FontSize="9">
+            Reset View
+        </Button>
+        <Button
+            cm:Message.Attach="FitView"
+            MaxHeight="18"
+            Padding="5,2"
+            Focusable="False"
+            FontSize="9"
+            Margin="2">
+            Fit Contents
+        </Button>
+
+
+
+    </StackPanel>
+</UserControl>

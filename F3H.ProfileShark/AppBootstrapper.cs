@@ -5,6 +5,7 @@ using Autofac.Extras.NLog;
 using Config.Net;
 using F3H.ProfileShark.Helpers;
 using F3H.ProfileShark.Models;
+using F3H.ProfileShark.RawBoard3D;
 using F3H.ProfileShark.Shell;
 using MvvmDialogs;
 
@@ -31,5 +32,14 @@ public class AppBootstrapper : AutofacBootstrapper
         builder.RegisterType<DialogService>().As<IDialogService>();
         builder.RegisterType<PlotColorService>().AsSelf().SingleInstance();
         builder.RegisterType<ItemColorService>().AsSelf().SingleInstance();
+        builder.Register(c =>
+        {
+            var loc = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var name = Path.Combine(loc, "Live3DViewSettings.json");
+            JsonHelper.CreateEmptyFileIfNotExisting(name);
+            return new ConfigurationBuilder<I3DDisplaySettings>()
+                .UseTypeParser(new ColorTypeParser()).UseJsonFile(name).Build();
+
+        }).SingleInstance();
     }
 }
