@@ -38,7 +38,13 @@
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="0" LastChildFill="False">
             <Image
-                Height="42"
+                Height="62"
+                Margin="10,5"
+                HorizontalAlignment="Right"
+                RenderOptions.BitmapScalingMode="Fant"
+                Source="../Assets/joescan.png" />
+            <Image
+                Height="62"
                 Margin="10,5"
                 HorizontalAlignment="Right"
                 RenderOptions.BitmapScalingMode="Fant"
