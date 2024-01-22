@@ -5,11 +5,50 @@ using System.Windows.Data;
 using Caliburn.Micro;
 using F3H.ProfileShark.Helpers;
 using NLog;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace F3H.ProfileShark.Models;
 
 public class DataManager : PropertyChangedBase
 {
+    #region Lifecycle
+
+    public DataManager(ILogger logger)
+    {
+        Logger = logger;
+        BindingOperations.EnableCollectionSynchronization(SelectableHeads, locker);
+        filteredView = CollectionViewSource.GetDefaultView(Profiles);
+        filteredView.Filter = Filter;
+        GoToFirstProfileCommand = new RelayCommand((o) => GoToFirstProfile(),
+            (o) => Profiles.Count > 0 && SelectedProfile != Profiles[0]);
+        GoToLastProfileCommand = new RelayCommand((o) => GoToLastProfile(),
+            (o) => Profiles.Count > 0 && SelectedProfile != Profiles[^1]);
+        GoToNextProfileCommand = new RelayCommand((o) => GoToNextProfile(),
+            (o) => Profiles.Count > 0 && SelectedProfile != Profiles[^1]);
+        GoToPreviousProfileCommand = new RelayCommand((o) => GoToPreviousProfile(),
+            (o) => Profiles.Count > 0 && SelectedProfile != Profiles[0]);
+        EncoderPulseInterval = 1.0;
+    }
+
+    #endregion
+
+    #region Injected Properties
+
+    public ILogger Logger { get; }
+
+    #endregion
+
+
+    #region Public Methods
+
+    public void SetProfiles(List<RawProfile> newProfiles)
+    {  
+        originalData = newProfiles;
+        FilterAndAdd();
+    }
+
+    #endregion
+
     #region Events
 
     public event EventHandler ProfileDataAdded;
@@ -28,23 +67,19 @@ public class DataManager : PropertyChangedBase
     private int scanHeadFilterByCamera = 0;
     private double encoderPulseInterval;
     private bool useFlightsAndWindowFilter;
-
-    #endregion
-
-    #region Injected Properties
-
-    public ILogger Logger { get; }
+    private List<RawProfile> originalData;
+    private string currentFile = "";
 
     #endregion
 
     #region UI Bound Properties
 
     public IObservableCollection<RawProfile> Profiles { get; } = new BindableCollection<RawProfile>();
-    private List<RawProfile> originalData;
-    private string currentFile = "";
+  
 
     public ObservableCollection<KeyValuePair<int, string>> SelectableHeads { get; } =
         new ObservableCollection<KeyValuePair<int, string>>();
+
     public ObservableCollection<KeyValuePair<int, string>> SelectableCameras { get; } =
         new ObservableCollection<KeyValuePair<int, string>>()
         {
@@ -68,6 +103,7 @@ public class DataManager : PropertyChangedBase
             OnHeadSelectionChanged();
         }
     }
+
     public int ScanHeadFilterByCamera
     {
         get => scanHeadFilterByCamera;
@@ -83,6 +119,7 @@ public class DataManager : PropertyChangedBase
             OnCameraSelectionChanged();
         }
     }
+
     public RawProfile? SelectedProfile
     {
         get => selectedProfile;
@@ -137,6 +174,7 @@ public class DataManager : PropertyChangedBase
             NotifyOfPropertyChange(() => CurrentFileShort);
         }
     }
+
     public string CurrentFileShort => String.IsNullOrEmpty(CurrentFile)? "No File Loaded" : Path.GetFileName(CurrentFile);
 
     #endregion
@@ -148,38 +186,6 @@ public class DataManager : PropertyChangedBase
     public RelayCommand GoToLastProfileCommand { get; }
     public RelayCommand GoToNextProfileCommand { get; }
     public RelayCommand GoToPreviousProfileCommand { get; }
-
-    #endregion
-
-    #region Lifecycle
-
-    public DataManager(ILogger logger)
-    {
-        Logger = logger;
-        BindingOperations.EnableCollectionSynchronization(SelectableHeads, locker);
-        filteredView = CollectionViewSource.GetDefaultView(Profiles);
-        filteredView.Filter = Filter;
-        GoToFirstProfileCommand = new RelayCommand((o) => GoToFirstProfile(),
-            (o) => Profiles.Count > 0 && SelectedProfile != Profiles[0]);
-        GoToLastProfileCommand = new RelayCommand((o) => GoToLastProfile(),
-            (o) => Profiles.Count > 0 && SelectedProfile != Profiles[^1]);
-        GoToNextProfileCommand = new RelayCommand((o) => GoToNextProfile(),
-            (o) => Profiles.Count > 0 && SelectedProfile != Profiles[^1]);
-        GoToPreviousProfileCommand = new RelayCommand((o) => GoToPreviousProfile(),
-            (o) => Profiles.Count > 0 && SelectedProfile != Profiles[0]);
-        EncoderPulseInterval = 1.0;
-    }
-
-    #endregion
-
-
-    #region Public Methods
-
-    public void SetProfiles(List<RawProfile> newProfiles)
-    {  
-        originalData = newProfiles;
-        FilterAndAdd();
-    }
 
     #endregion
 
@@ -212,11 +218,11 @@ public class DataManager : PropertyChangedBase
 
     private void FilterAndAdd()
     {
+        var currentSelectedHead = ScanHeadFilterById;
         Profiles.Clear();
         SelectableHeads.Clear();
         SelectableHeads.Add(new KeyValuePair<int, string>(-1, "*"));
         HashSet<uint> headsInFile = new HashSet<uint>();
-        int index = 0;
         foreach (var p in originalData)
         {
             var rp = new RawProfile(p);
@@ -230,6 +236,7 @@ public class DataManager : PropertyChangedBase
         {
             SelectableHeads.Add(new KeyValuePair<int, string>((int)headIds, $"{headIds}"));
         }
+        ScanHeadFilterById = 0;
         OnProfileDataAdded();
     }
 
@@ -256,8 +263,6 @@ public class DataManager : PropertyChangedBase
     #endregion
 
     #region UI Callbacks
-
-   
 
     public void GoToFirstProfile()
     {
