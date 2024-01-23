@@ -239,6 +239,7 @@ public class DataManager : PropertyChangedBase
         }
         ScanHeadFilterById = 0;
         OnProfileDataAdded();
+        SelectedProfile = Profiles[Profiles.Count/2];
     }
 
     #endregion
