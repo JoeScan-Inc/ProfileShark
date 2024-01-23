@@ -115,7 +115,7 @@
 
 
 
-                <ToggleButton
+                <ToggleButton Visibility="Hidden"
                     Width="32"
                     Height="32"
                     Margin="5,5,5,5"
