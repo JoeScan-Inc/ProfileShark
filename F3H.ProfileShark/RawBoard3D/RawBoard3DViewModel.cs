@@ -193,11 +193,7 @@ public class RawBoard3DViewModel : Screen
         return (byte)(b); // clamp?
     }
 
-    private static byte BinByDistance(double d)
-    {
-        // convert a range between 0.25 and 1.0 to 0-255
-        return (byte)int.Clamp((int)((d - 0.25) / 0.5 * 255.0), 0, 255);
-    }
+    
 
     private void UpdateBoardDisplay()
     {
