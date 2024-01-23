@@ -1,4 +1,5 @@
 ﻿using System.Drawing.Imaging;
+using System.Windows.Media;
 using Caliburn.Micro;
 
 // ReSharper disable UnusedMember.Global
@@ -47,6 +48,18 @@ public class DisplaySettingsViewModel : Screen
     {
         get => settings.OrthographicCamera;
         set => settings.OrthographicCamera = value;
+    }
+    
+    public Color CameraAColor
+    {
+        get => settings.CameraAColor;
+        set => settings.CameraAColor = value;
+    }
+    
+    public Color CameraBColor
+    {
+        get => settings.CameraBColor;
+        set => settings.CameraBColor = value;
     }
     
     public void SaveSettings()

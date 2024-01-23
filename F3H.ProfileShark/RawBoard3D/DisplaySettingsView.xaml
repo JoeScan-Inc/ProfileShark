@@ -5,7 +5,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:cm="http://caliburnmicro.com"
-    xmlns:imaging="clr-namespace:System.Drawing.Imaging;assembly=System.Drawing.Common"
     xmlns:rawBoard3D="clr-namespace:F3H.ProfileShark.RawBoard3D"
     d:DesignHeight="300"
     d:DesignWidth="300"
@@ -25,7 +24,7 @@
             Padding="5,2"
             Focusable="False"
             FontSize="9"
-            IsChecked="{Binding ColorMode, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static rawBoard3D:DisplayMode.ByIntensity}}"
+            IsChecked="{Binding DisplayMode, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static rawBoard3D:DisplayMode.ByIntensity}}"
             IsEnabled="{Binding ElementName=ShowRawPoints, Path=IsChecked}">
             Intensity
         </RadioButton>
@@ -35,12 +34,10 @@
             Padding="5,2"
             Focusable="False"
             FontSize="9"
-            IsChecked="{Binding ColorMode, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static rawBoard3D:DisplayMode.ByCamera}}"
+            IsChecked="{Binding DisplayMode, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static rawBoard3D:DisplayMode.ByCamera}}"
             IsEnabled="{Binding ElementName=ShowRawPoints, Path=IsChecked}">
             Camera
         </RadioButton>
-
-       
         <CheckBox Margin="2,10,2,2" x:Name="OrthographicCamera">Orthographic Projection</CheckBox>
         <Button
             cm:Message.Attach="ResetView"

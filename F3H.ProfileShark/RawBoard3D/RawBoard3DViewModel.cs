@@ -1,4 +1,6 @@
+using System.ComponentModel;
 using System.IO;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using Caliburn.Micro;
@@ -34,6 +36,7 @@ public class RawBoard3DViewModel : Screen
         DataManager.CameraSelectionChanged += (_, _) => UpdateBoardDisplay();
         DataManager.HeadSelectionChanged += (_, _) => UpdateBoardDisplay();
         DisplayControls.PropertyChanged += (_, _) => UpdateBoardDisplay();
+        DataManager.PropertyChanged += SelectedProfileChanged;
 
         encoderPulseInterval = 0.0032728603049680203;
         EffectsManager = new DefaultEffectsManager();
@@ -77,6 +80,8 @@ public class RawBoard3DViewModel : Screen
     public Color AmbientLightColor { get; private set; }
     public Stream BackgroundTexture { get; }
     public PointGeometry3D PointCloudModel { get; } = new();
+    public PointGeometry3D CurrentProfileModel { get; } = new();
+    public Size RawPointSize => new Size(DisplayControls.RawPointSize, DisplayControls.RawPointSize);
 
     public Camera Camera
     {
@@ -123,7 +128,10 @@ public class RawBoard3DViewModel : Screen
         get => drawerOpen;
         set
         {
-            if (value == drawerOpen) return;
+            if (value == drawerOpen)
+            {
+                return;
+            }
             drawerOpen = value;
             NotifyOfPropertyChange(() => DrawerOpen);
         }
@@ -138,54 +146,19 @@ public class RawBoard3DViewModel : Screen
         Camera.Position = new Point3D(23, 21, 8);
         Camera.LookDirection = new Vector3D(-27, -25, -28);
         Camera.UpDirection = new Vector3D(-0.37, 0.84, -0.4);
-
+        Camera.LookAt(PointCloudModel.BoundingSphere.Center, PointCloudModel.BoundingSphere.Radius * 2);
         FitView();
     }
 
     public void FitView()
     {
+        Camera.LookAt(PointCloudModel.BoundingSphere.Center, PointCloudModel.BoundingSphere.Radius * 2);
+        Camera.ZoomExtents(viewport, 1.0);
     }
 
     #endregion
 
     #region Private Methods
-
-    private ModelVisual3D BoardToVisual3D(IEnumerable<RawProfile> board)
-    {
-        var first = board.First();
-        var ptsDict = new Dictionary<byte, IList<Point3D>>();
-        foreach (var profile in board)
-        {
-            var z = (profile.EncoderValue - first.EncoderValue) * encoderPulseInterval;
-
-            foreach (var point2D in profile.Data)
-            {
-                var pt3d = new Point3D(point2D.X, point2D.Y, z);
-                var colorValue = BinByBrightness(point2D.Brightness);
-                if (!ptsDict.ContainsKey(colorValue))
-                {
-                    ptsDict[colorValue] = new List<Point3D>();
-                }
-
-                ptsDict[colorValue].Add(pt3d);
-            }
-        }
-
-        var group = new ModelVisual3D();
-
-        foreach (byte col in ptsDict.Keys)
-        {
-            var visual = new PointsVisual3D
-            {
-                Color = colorService.LogColorValues[col],
-                Size = 2,
-                Points = new Point3DCollection(ptsDict[col])
-            };
-            group.Children.Add(visual);
-        }
-
-        return group;
-    }
 
 
     private static byte BinByBrightness(double b)
@@ -197,11 +170,14 @@ public class RawBoard3DViewModel : Screen
 
     private void UpdateBoardDisplay()
     {
+        Camera = DisplayControls.OrthographicCamera ? orthographicCamera : perspectiveCamera;
+        
         if (DataManager.Profiles.Count == 0 || !DisplayControls.ShowRawPoints)
         {
             PointCloudModel.Positions.Clear();
             PointCloudModel.Colors.Clear();
-            Refresh();
+            PointCloudModel.UpdateVertices();
+            
             return;
         }
 
@@ -217,20 +193,41 @@ public class RawBoard3DViewModel : Screen
                 if (DisplayControls.DisplayMode == DisplayMode.ByCamera)
                 {
                     PointCloudModel.Colors.Add(pr.Camera == JoeScan.Pinchot.Camera.CameraA
-                        ? Colors.Red.ToColor4()
-                        : Colors.Blue.ToColor4());
+                        ? DisplayControls.CameraAColor.ToColor4()
+                        : DisplayControls.CameraBColor.ToColor4());
                 }
                 else
                 {
                     PointCloudModel.Colors.Add(colorService.LogColorValues[BinByBrightness(point2D.Brightness)].ToColor4());    
                 }
-                
             }
         }
-
+        PointCloudModel.UpdateBounds();
+        PointCloudModel.UpdateVertices();
         PointCloudModel.UpdateOctree();
     }
+    private void SelectedProfileChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(DataManager.SelectedProfile))
+        {
+            return;
+        }
 
+        var selectedProfile = DataManager.SelectedProfile;
+        if (selectedProfile == null)
+        {
+            CurrentProfileModel.Positions.Clear();
+            CurrentProfileModel.Colors.Clear();
+            CurrentProfileModel.UpdateVertices();
+            return;
+        }
+        var first = DataManager.Profiles.First();
+        CurrentProfileModel.Positions = new Vector3Collection(selectedProfile.Data.Select(r => new Vector3(r.X, r.Y, (float)((selectedProfile.EncoderValue - first.EncoderValue) * encoderPulseInterval))));
+        CurrentProfileModel.Colors = new Color4Collection(Enumerable.Repeat(Colors.Red.ToColor4(), selectedProfile.Data.Length));
+        CurrentProfileModel.UpdateBounds();
+        CurrentProfileModel.UpdateVertices();
+        CurrentProfileModel.UpdateOctree();
+    }
     #endregion
 
 
@@ -243,6 +240,19 @@ public class RawBoard3DViewModel : Screen
     private Camera camera;
     private string cameraString;
     private bool drawerOpen;
+    private Viewport3DX viewport;
+
+    #endregion
+
+    #region IViewAware
+
+    protected override void OnViewAttached(object view, object context)
+    {
+        if (view is RawBoard3DView rawBoard3DView)
+        {
+            viewport = rawBoard3DView.Viewport;
+        }
+    }
 
     #endregion
 }

@@ -27,7 +27,7 @@
         </GroupBox.Header>
         <Grid>
             <hx:Viewport3DX
-                x:Name="view1"
+                x:Name="Viewport"
                 BackgroundColor="DimGray"
                 Camera="{Binding Camera}"
                 CameraMode="Inspect"
@@ -65,13 +65,17 @@
 
                 <hx:PointGeometryModel3D
                     Geometry="{Binding PointCloudModel}"
-                    Size="3,3"
+                    Size="{Binding RawPointSize}"
                     Color="White" />
+                <hx:PointGeometryModel3D
+                    Geometry="{Binding CurrentProfileModel}"
+                    Size="3,3"
+                    Color="Yellow" />
                 <hx:ScreenQuadModel3D Texture="{Binding BackgroundTexture}" />
-                <hx:AxisPlaneGridModel3D
-                    AutoSpacing="True"
-                    RenderShadowMap="True"
-                    Offset="-0.1" />
+                <!-- <hx:AxisPlaneGridModel3D -->
+                <!--     AutoSpacing="True" -->
+                <!--     RenderShadowMap="True" -->
+                <!--     Offset="-0.1" /> -->
 
             </hx:Viewport3DX>
             
@@ -84,25 +88,28 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <ToggleButton
-                    Width="30"
-                    Height="30"
-                    Margin="2"
-                    Padding="5"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    Focusable="False"
-                    FontFamily="{StaticResource MaterialDesignIcons}"
-                    IsChecked="{Binding DrawerOpen}">
-                    &#xF035C;
-                </ToggleButton>
+               
                 <Border Grid.Row="0"
                     Grid.Column="0"
                     Background="#00FFFFFF"
                     Visibility="{Binding DrawerOpen, Converter={StaticResource BoolToVisibilityConverter}}">
                     <ContentControl  HorizontalAlignment="Left"
                                      VerticalAlignment="Top" x:Name="DisplayControls"></ContentControl>
+                    
                 </Border>
+                <ToggleButton Grid.Row="0"
+                              Grid.Column="0"
+                              Width="30"
+                              Height="30"
+                              Margin="2"
+                              Padding="5"
+                              HorizontalAlignment="Left"
+                              VerticalAlignment="Top"
+                              Focusable="False"
+                              FontFamily="{StaticResource MaterialDesignIcons}"
+                              IsChecked="{Binding DrawerOpen}">
+                    &#xF035C;
+                </ToggleButton>
             </Grid>
         </Grid>
 
