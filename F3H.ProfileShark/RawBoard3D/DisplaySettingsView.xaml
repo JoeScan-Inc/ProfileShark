@@ -43,7 +43,7 @@
         <StackPanel Margin="2" Orientation="Vertical">
         <TextBlock>Encoder Pulse Interval:</TextBlock>
             <TextBox HorizontalAlignment="Left" 
-                     FontSize="8" Width="100" Text="{Binding EncoderPulseInterval}"
+                     FontSize="8" Width="100" Text="{Binding EncoderPulseInterval, StringFormat={}{0:F10}}"
                      ></TextBox>
         </StackPanel>
         <Button
