@@ -62,6 +62,18 @@ public class DisplaySettingsViewModel : Screen
         set => settings.CameraBColor = value;
     }
     
+    public double EncoderPulseInterval
+    {
+        get => settings.EncoderPulseInterval;
+        set
+        {
+            settings.EncoderPulseInterval = value;
+        }
+    }
+    public void SetEncoderPulseInterval(double value)
+    {
+        EncoderPulseInterval = value;
+    }
     public void SaveSettings()
     {
         

@@ -13,4 +13,5 @@ public interface I3DDisplaySettings : INotifyPropertyChanged
     [Option(DefaultValue = "#ffda00")] Color CameraAColor { get; set; }
     [Option(DefaultValue = "Purple")] Color CameraBColor { get; set; }
     [Option(DefaultValue = false)] bool OrthographicCamera { get; set; }
+    [Option(DefaultValue = 0.0032728)] double EncoderPulseInterval { get; set; }
 }

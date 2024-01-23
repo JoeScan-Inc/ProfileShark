@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:cm="http://caliburnmicro.com"
     xmlns:rawBoard3D="clr-namespace:F3H.ProfileShark.RawBoard3D"
+    xmlns:helpers="clr-namespace:F3H.ProfileShark.Helpers"
     d:DesignHeight="300"
     d:DesignWidth="300"
     FontSize="10"
@@ -39,6 +40,12 @@
             Camera
         </RadioButton>
         <CheckBox Margin="2,10,2,2" x:Name="OrthographicCamera">Orthographic Projection</CheckBox>
+        <StackPanel Margin="2" Orientation="Vertical">
+        <TextBlock>Encoder Pulse Interval:</TextBlock>
+            <TextBox HorizontalAlignment="Left" 
+                     FontSize="8" Width="100" Text="{Binding EncoderPulseInterval}"
+                     ></TextBox>
+        </StackPanel>
         <Button
             cm:Message.Attach="ResetView"
             Margin="2,10,2,2"

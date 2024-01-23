@@ -38,15 +38,15 @@ public class RawBoard3DViewModel : Screen
         DisplayControls.PropertyChanged += (_, _) => UpdateBoardDisplay();
         DataManager.PropertyChanged += SelectedProfileChanged;
 
-        encoderPulseInterval = 0.0032728603049680203;
+        
         EffectsManager = new DefaultEffectsManager();
         perspectiveCamera = new PerspectiveCamera()
         {
             Position = new Point3D(23, 21, 8),
             LookDirection = new Vector3D(-27, -25, -28),
             UpDirection = new Vector3D(-0.37, 0.84, -0.4),
-            NearPlaneDistance = 0,
-            FarPlaneDistance = 1500
+            NearPlaneDistance = 0.1,
+            FarPlaneDistance = 15000
         };
         orthographicCamera = new OrthographicCamera()
         {
@@ -54,7 +54,7 @@ public class RawBoard3DViewModel : Screen
             LookDirection = new Vector3D(-27, -25, -28),
             UpDirection = new Vector3D(-0.37, 0.84, -0.4),
             NearPlaneDistance = -100,
-            FarPlaneDistance = 1500
+            FarPlaneDistance = 15000
         };
         cameraString = "Perspective";
         camera = perspectiveCamera;
@@ -137,6 +137,7 @@ public class RawBoard3DViewModel : Screen
         }
     }
 
+    
     #endregion
 
     #region Public Methods
@@ -182,8 +183,14 @@ public class RawBoard3DViewModel : Screen
         }
 
         var first = DataManager.Profiles.First();
+        var encoderPulseInterval = DisplayControls.EncoderPulseInterval;
         var pts = DataManager.Profiles.Where(q => DataManager.ShowCamera(q.Camera)).SelectMany(p => p.Data.Select(r
-            => new Vector3(r.X, r.Y, (float)((p.EncoderValue - first.EncoderValue) * encoderPulseInterval))));
+            =>
+        {
+           
+            return new Vector3(r.X, r.Y,
+                (float)((p.EncoderValue - first.EncoderValue) * encoderPulseInterval));
+        }));
         PointCloudModel.Positions = new Vector3Collection(pts);
         PointCloudModel.Colors = new Color4Collection(PointCloudModel.Positions.Count);
         foreach (var pr in DataManager.Profiles.Where(q => DataManager.ShowCamera(q.Camera)))
@@ -222,7 +229,14 @@ public class RawBoard3DViewModel : Screen
             return;
         }
         var first = DataManager.Profiles.First();
-        CurrentProfileModel.Positions = new Vector3Collection(selectedProfile.Data.Select(r => new Vector3(r.X, r.Y, (float)((selectedProfile.EncoderValue - first.EncoderValue) * encoderPulseInterval))));
+        var encoderPulseInterval = DisplayControls.EncoderPulseInterval;
+        CurrentProfileModel.Positions = new Vector3Collection(selectedProfile.Data.Select(r =>
+        {
+            
+            return new Vector3(r.X, r.Y,
+                (float)((selectedProfile.EncoderValue - first.EncoderValue) *
+                        encoderPulseInterval));
+        }));
         CurrentProfileModel.Colors = new Color4Collection(Enumerable.Repeat(Colors.Red.ToColor4(), selectedProfile.Data.Length));
         CurrentProfileModel.UpdateBounds();
         CurrentProfileModel.UpdateVertices();
@@ -234,7 +248,6 @@ public class RawBoard3DViewModel : Screen
     #region Private Properties
 
     private readonly ItemColorService colorService;
-    private readonly double encoderPulseInterval;
     private readonly OrthographicCamera orthographicCamera;
     private readonly PerspectiveCamera perspectiveCamera;
     private Camera camera;
