@@ -24,3 +24,9 @@ public class BooleanConverter<T> : IValueConverter
         return value is T && EqualityComparer<T>.Default.Equals((T)value, True);
     }
 }
+public sealed class InvertBoolConverter : BooleanConverter<bool>
+{
+    public InvertBoolConverter() :
+        base(false, true)
+    { }
+}
