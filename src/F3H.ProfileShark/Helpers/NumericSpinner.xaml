@@ -1,0 +1,113 @@
+﻿<UserControl
+    mc:Ignorable="d"
+    x:Class="JSUIComponents.NumericSpinner"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:JSUIComponents"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <ControlTemplate TargetType="Button" x:Key="updown_button_style">
+            <Border
+                Background="{DynamicResource ThemeBrush}"
+                BorderBrush="{DynamicResource ThemeBrushDark}"
+                BorderThickness="0"
+                CornerRadius="0"
+                x:Name="br">
+                <ContentPresenter
+                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                    TextElement.Foreground="{TemplateBinding Foreground}"
+                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                    x:Name="cp" />
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Background" TargetName="br" Value="{DynamicResource ThemeBrushActive}" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Background" TargetName="br" Value="Silver" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <Style TargetType="Button">
+            <Setter Property="Template" Value="{StaticResource updown_button_style}" />
+        </Style>
+    </UserControl.Resources>
+    <Border>
+        <!-- <Border.OpacityMask> -->
+        <!--     <VisualBrush> -->
+        <!--         <VisualBrush.Visual> -->
+        <!--  <Border  -->
+        <!--  Background="Black"  -->
+        <!--  CornerRadius="1"  -->
+        <!--  Height="{Binding ActualHeight, RelativeSource={RelativeSource FindAncestor, AncestorType=Border}}"  -->
+        <!--  SnapsToDevicePixels="True"  -->
+        <!--  Width="{Binding ActualWidth, RelativeSource={RelativeSource FindAncestor, AncestorType=Border}}" />  -->
+        <!--         </VisualBrush.Visual> -->
+        <!--     </VisualBrush> -->
+        <!-- </Border.OpacityMask> -->
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="22" />
+            </Grid.ColumnDefinitions>
+            <TextBox
+                FontSize="12"
+                FontWeight="Normal"
+                Grid.Column="0"
+                Grid.RowSpan="2"
+                Padding="5,1"
+                Text="0"
+                VerticalContentAlignment="Center"
+                x:FieldModifier="private"
+                x:Name="mText" />
+            <RepeatButton
+                Click="CmdUp_Click"
+                Grid.Column="1"
+                Grid.Row="0"
+                Height="auto"
+                Width="auto"
+                x:FieldModifier="private"
+                x:Name="cmdUp">
+                <RepeatButton.Content>
+                    <Path
+                        Data="M4,0 L0,4 L8,4 z"
+                        Fill="DarkGray"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center" />
+                </RepeatButton.Content>
+            </RepeatButton>
+            <RepeatButton
+                Click="CmdDown_Click"
+                Grid.Column="1"
+                Grid.Row="1"
+                Height="auto"
+                Width="auto"
+                x:FieldModifier="private"
+                x:Name="cmdDown">
+                <RepeatButton.Content>
+                    <Path
+                        Data="M0,0 L8,0 L4,4 z"
+                        Fill="DarkGray"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center" />
+                </RepeatButton.Content>
+            </RepeatButton>
+
+            <Border
+                BorderBrush="Gray"
+                BorderThickness="1"
+                CornerRadius="4"
+                Grid.ColumnSpan="2"
+                Grid.RowSpan="2"
+                IsHitTestVisible="False"
+                Margin="0"
+                Padding="0" />
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,9 +1,10 @@
-﻿<Application x:Class="F3H.ProfileShark.App"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
-             xmlns:profileShark="clr-namespace:F3H.ProfileShark"
-             xmlns:converters="clr-namespace:F3H.ProfileShark.Converters">
+﻿<Application
+    x:Class="F3H.ProfileShark.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+    xmlns:converters="clr-namespace:F3H.ProfileShark.Converters"
+    xmlns:profileShark="clr-namespace:F3H.ProfileShark"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -34,24 +35,26 @@
                 <ResourceDictionary>
                     <!--  Converter mapping True to Visible and False to Collapsed  -->
                     <converters:BoolToVisibilityConverter
-                        x:Key="BoolToVisibilityConverter"
                         False="Collapsed"
-                        True="Visible" />
+                        True="Visible"
+                        x:Key="BoolToVisibilityConverter" />
                     <!--  Converter mapping True to Collapsed and False to Visible  -->
                     <converters:BoolToVisibilityConverter
-                        x:Key="BoolToInverseVisibilityConverter"
                         False="Visible"
-                        True="Collapsed" />
+                        True="Collapsed"
+                        x:Key="BoolToInverseVisibilityConverter" />
                     <!--  Converter mapping True to Collapsed and False to Visible  -->
                     <converters:BoolToVisibilityConverter
-                        x:Key="BoolToInverseVisibilityConverterHidden"
                         False="Visible"
-                        True="Hidden" />
+                        True="Hidden"
+                        x:Key="BoolToInverseVisibilityConverterHidden" />
                     <!--  Converter mapping True to Visible and False to Hidden  -->
                     <converters:BoolToVisibilityConverter
-                        x:Key="BoolToVisibilityConverterHidden"
                         False="Hidden"
-                        True="Visible" />
+                        True="Visible"
+                        x:Key="BoolToVisibilityConverterHidden" />
+                    <!--  Converter mapping true to false and false to true  -->
+                    <converters:InvertBoolConverter x:Key="InvertBoolConverter" />
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

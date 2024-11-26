@@ -1,5 +1,8 @@
-﻿using System.IO;
+﻿using System.Dynamic;
+using System.IO;
+using System.Windows;
 using Caliburn.Micro;
+using F3H.ProfileShark.Dialogs;
 using F3H.ProfileShark.Models;
 using F3H.ProfileShark.Shared;
 using MvvmDialogs;
@@ -11,12 +14,14 @@ namespace F3H.ProfileShark.Toolbar;
 public class ToolbarViewModel : Screen
 {
     private readonly IDialogService dialogService;
+    private readonly IWindowManager windowManager;
 
     public ToolbarViewModel(DataManager dataManager,
        IEventAggregator eventAggregator,
-        IDialogService dialogService, ILogger logger)
+        IDialogService dialogService, IWindowManager windowManager, ILogger logger)
     {
         this.dialogService = dialogService;
+        this.windowManager = windowManager;
         DataManager = dataManager;
         EventAggregator = eventAggregator;
         Logger = logger;
@@ -53,19 +58,65 @@ public class ToolbarViewModel : Screen
         try
         {
             await EventAggregator.PublishOnUIThreadAsync(true);
-            DataManager.SetProfiles(await DataReader.ReadProfilesC(fileName));
+
+            var rawProfiles = await DataReader.ReadProfilesNative(fileName);
+            if (rawProfiles.Count == 0)
+            {
+                return;
+            }
+            if (rawProfiles.Last().EncoderValue == rawProfiles.First().EncoderValue)
+            {
+                FixupEncoderValues(rawProfiles);   
+            }
+            DataManager.SetProfiles(rawProfiles);
             DataManager.CurrentFile = fileName;
             Refresh();
         }
         catch (Exception e)
         {
-
+            // ignored
         }
         finally
         {
             await EventAggregator.PublishOnUIThreadAsync(false);
         }
-       
+    }
+
+    private void FixupEncoderValues(List<RawProfile> rawProfiles)
+    {
+        var encoderValue = rawProfiles.First().EncoderValue;
+        foreach (var rawProfile in rawProfiles)
+        {
+            rawProfile.EncoderValue = encoderValue++;
+        }
+    }
+
+    public async Task Record()
+    {
+        try
+        {
+            await EventAggregator.PublishOnUIThreadAsync(true);
+            // show recording dialog
+            var dlg = IoC.Get<RecordLiveDataViewModel>();
+            dynamic dlgSettings = new ExpandoObject();
+            dlgSettings.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            dlgSettings.ShowInTaskbar = false;
+            var res = await windowManager.ShowDialogAsync(dlg, null, dlgSettings);
+            if (res == true)
+            {
+                // import recorded data
+                await LoadFile(dlg.OutputFileName);
+            }
+            
+        }
+        catch (Exception e)
+        {
+            // ignored
+        }
+        finally
+        {
+            await EventAggregator.PublishOnUIThreadAsync(false);
+        }
     }
 
     public async void LoadPrevious()
