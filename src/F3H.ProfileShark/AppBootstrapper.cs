@@ -41,5 +41,6 @@ public class AppBootstrapper : AutofacBootstrapper
                 .UseTypeParser(new ColorTypeParser()).UseJsonFile(name).Build();
 
         }).SingleInstance();
+        builder.RegisterType<LiveRecorder>().AsSelf().InstancePerDependency();
     }
 }

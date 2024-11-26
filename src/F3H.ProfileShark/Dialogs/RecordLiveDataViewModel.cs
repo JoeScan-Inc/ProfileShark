@@ -1,13 +1,17 @@
-﻿using Caliburn.Micro;
+﻿using ByteSizeLib;
+using Caliburn.Micro;
+using F3H.ProfileShark.Models;
 using JoeScan.Pinchot;
 using JoeScan.Pinchot.Parser;
 using MvvmDialogs;
 using MvvmDialogs.FrameworkDialogs.OpenFile;
 using MvvmDialogs.FrameworkDialogs.SaveFile;
 using NLog;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace F3H.ProfileShark.Dialogs;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public class RecordLiveDataViewModel : Screen
 {
     private readonly ILogger logger;
@@ -16,11 +20,12 @@ public class RecordLiveDataViewModel : Screen
     #region Private Fields
 
     private bool isRecording;
-    private uint minScanPeriod = 1000;
-    private string outputFileName = string.Empty;
+    private uint minScanPeriod = 5000;
+    private string outputFileName;
     private string scanSystemFileName = string.Empty;
-    ScanSystem? scanSystem = null;
-    private string message;
+    ScanSystem? scanSystem;
+    private LiveRecorder? recorder;
+    private long bytesWritten;
 
     #endregion
 
@@ -51,16 +56,17 @@ public class RecordLiveDataViewModel : Screen
         }
     }
 
-   
+
     public string OutputFileName
     {
         get => outputFileName;
-        set
+        private set
         {
             if (value == outputFileName) return;
             outputFileName = value;
             NotifyOfPropertyChange(() => OutputFileName);
-            NotifyOfPropertyChange(()=>CanStartRecording);
+            NotifyOfPropertyChange(() => CanStartRecording);
+            logger.Info($"OutputFileName set to {outputFileName}");
         }
     }
 
@@ -69,10 +75,15 @@ public class RecordLiveDataViewModel : Screen
         get => minScanPeriod;
         set
         {
-            if (value == minScanPeriod) return;
+            if (value == minScanPeriod)
+            {
+                return;
+            }
+
             minScanPeriod = value;
+            logger.Info($"MinScanPeriod set to {minScanPeriod}");
             NotifyOfPropertyChange(() => MinScanPeriod);
-            NotifyOfPropertyChange(()=>CanStartRecording);
+            NotifyOfPropertyChange(() => CanStartRecording);
         }
     }
 
@@ -89,35 +100,49 @@ public class RecordLiveDataViewModel : Screen
     }
 
     public bool ParseOk => scanSystem != null;
-
-    public string Message
-    {
-        get => message;
-        set
-        {
-            if (value == message) return;
-            message = value;
-            NotifyOfPropertyChange(() => Message);
-        }
-    }
+    public string BytesWritten { get; private set; } = String.Empty;
+    public string ProfilesWritten { get; private set; } = String.Empty;
 
     #endregion
-    
+
     #region Public Methods
-    
-    public void StartRecording()
+
+    public async Task StartRecording()
     {
+        
+        bytesWritten = 0;
+        recorder = IoC.Get<LiveRecorder>();
+        recorder.OutputFileName = OutputFileName;
+        recorder.ScanSystem = scanSystem;
+        recorder.MinScanPeriod = MinScanPeriod;
+        recorder.ProgressUpdate += HandleProgressUpdate;
         IsRecording = true;
+        await recorder.StartRecording();
     }
-    
+
+
     public void StopRecording()
     {
+        if (recorder != null)
+        {
+            recorder.StopRecording();
+            recorder.ProgressUpdate -= HandleProgressUpdate;
+            scanSystem?.Dispose();
+            scanSystem = null;
+            recorder = null;
+        }
+
         IsRecording = false;
     }
-    
+
     public void Close()
     {
-        TryCloseAsync();
+        TryCloseAsync(false);
+    }
+
+    public void CloseAndImport()
+    {
+        TryCloseAsync(true);
     }
 
     public void BrowseScanSystem()
@@ -136,7 +161,7 @@ public class RecordLiveDataViewModel : Screen
             ScanSystemFileName = openFileDialogSettings.FileName;
         }
     }
-    
+
     public void BrowseOutput()
     {
         var saveFileDialogSettings = new SaveFileDialogSettings()
@@ -153,37 +178,48 @@ public class RecordLiveDataViewModel : Screen
             OutputFileName = saveFileDialogSettings.FileName;
         }
     }
+
     #endregion
 
     #region Private Methods
 
+    private void HandleProgressUpdate(object? _, ProgressEventArgs progressEventArgs)
+    {
+        bytesWritten = progressEventArgs.BytesWritten;
+        BytesWritten = $"Data: {ByteSize.FromBytes(progressEventArgs.BytesWritten).ToString("#.00")}";
+        ProfilesWritten = $"Profiles: {progressEventArgs.ProfilesWritten}";
+        NotifyOfPropertyChange(() => BytesWritten);
+        NotifyOfPropertyChange(() => ProfilesWritten);
+    }
+
     private void ParseScanSystem()
     {
         // Parse the scan system file
-        
+
         try
         {
-            scanSystem = ScanSystemParser.CreateFromFile(ScanSystemFileName, new ScanSystemCreationOptions(){});
-            Message = "Parse OK";
+            scanSystem = ScanSystemParser.CreateFromFile(ScanSystemFileName);
+            logger.Info($"Parsed ScanSystem file {ScanSystemFileName} successfully");
         }
         catch (Exception e)
         {
             scanSystem = null;
-            Message = "Parse Failed";
             logger.Error(e, "Failed to parse ScanSystem file");
         }
+
         Refresh();
     }
 
-
     #endregion
-    
+
     #region Guard Methods
-    
+
     public bool CanStartRecording => !IsRecording && ParseOk && !string.IsNullOrEmpty(OutputFileName)
                                      && MinScanPeriod is > 100 and < 10000;
+
     public bool CanStopRecording => IsRecording;
     public bool CanClose => !IsRecording;
-    
+    public bool CanCloseAndImport => !IsRecording && !string.IsNullOrEmpty(OutputFileName) && bytesWritten > 0;
+
     #endregion
 }

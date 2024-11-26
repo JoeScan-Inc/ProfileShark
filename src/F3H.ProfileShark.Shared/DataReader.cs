@@ -1,10 +1,75 @@
+using System.IO.Compression;
 using F3H.ProfileShark.Models;
 using JoeScan.Pinchot;
+using K4os.Compression.LZ4.Streams;
+
 
 namespace F3H.ProfileShark.Shared;
 
 public static class DataReader
 {
+    public static Task<List<RawProfile>> ReadProfilesNative(string fileName)
+    {
+        return Task.Run(() =>
+        {
+            using var sr = File.OpenRead(fileName);
+            using var decompressedStream = LZ4Stream.Decode(sr);
+            using var br = new BinaryReader(decompressedStream);
+            return ReadProfilesNative(br).ToList();
+        });
+    }
+
+    public static IEnumerable<RawProfile> ReadProfilesNative(BinaryReader br)
+    {
+        var l = new List<RawProfile>();
+        var idx = 0;
+        try
+        {
+            if (0x02 != br.ReadInt32())
+            {
+                throw new InvalidDataException("Invalid file format");
+            }
+            while (true)
+            {
+                var rp = new RawProfile();
+                rp.Index = idx++;
+                rp.ScanHeadId = br.ReadUInt32();
+                rp.Camera = (Camera)br.ReadInt32();
+                rp.Laser = (Laser)br.ReadInt32();
+                rp.TimeStampNs = br.ReadUInt64();
+                int encoderCount = br.ReadInt32();
+                for (var i = 0; i < encoderCount; i++)
+                {
+                    if (i == 0)
+                    {
+                        rp.EncoderValue = br.ReadInt64();
+                    }
+                }
+                rp.LaserOnTimeUs = br.ReadUInt16();
+                var numPoints = br.ReadUInt32();
+                _ = br.ReadInt32(); // format
+                rp.SequenceNumber = br.ReadUInt32(); 
+                rp.Flags = (uint) br.ReadInt32();
+                var pts = new List<Point2D>();
+                for (var i = 0; i < numPoints; i++)
+                {
+                    var x = br.ReadSingle();
+                    var y = br.ReadSingle();
+                    var brightness = br.ReadByte();
+                    pts.Add(new Point2D(x, y , brightness));
+                }
+                rp.DataLength = numPoints;
+                rp.Data = pts.ToArray();
+                l.Add(rp);
+            }
+        } catch (EndOfStreamException)
+        {
+            // ignored
+        }
+        return l;
+
+    }
+    
     public static Task<List<RawProfile>> ReadProfilesC(string fileName)
     {
         return Task.Run(() =>

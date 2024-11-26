@@ -58,7 +58,17 @@ public class ToolbarViewModel : Screen
         try
         {
             await EventAggregator.PublishOnUIThreadAsync(true);
-            DataManager.SetProfiles(await DataReader.ReadProfilesC(fileName));
+
+            var rawProfiles = await DataReader.ReadProfilesNative(fileName);
+            if (rawProfiles.Count == 0)
+            {
+                return;
+            }
+            if (rawProfiles.Last().EncoderValue == rawProfiles.First().EncoderValue)
+            {
+                FixupEncoderValues(rawProfiles);   
+            }
+            DataManager.SetProfiles(rawProfiles);
             DataManager.CurrentFile = fileName;
             Refresh();
         }
@@ -72,6 +82,15 @@ public class ToolbarViewModel : Screen
         }
     }
 
+    private void FixupEncoderValues(List<RawProfile> rawProfiles)
+    {
+        var encoderValue = rawProfiles.First().EncoderValue;
+        foreach (var rawProfile in rawProfiles)
+        {
+            rawProfile.EncoderValue = encoderValue++;
+        }
+    }
+
     public async Task Record()
     {
         try
@@ -82,7 +101,12 @@ public class ToolbarViewModel : Screen
             dynamic dlgSettings = new ExpandoObject();
             dlgSettings.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             dlgSettings.ShowInTaskbar = false;
-            await windowManager.ShowDialogAsync(dlg, null, dlgSettings);
+            var res = await windowManager.ShowDialogAsync(dlg, null, dlgSettings);
+            if (res == true)
+            {
+                // import recorded data
+                await LoadFile(dlg.OutputFileName);
+            }
             
         }
         catch (Exception e)

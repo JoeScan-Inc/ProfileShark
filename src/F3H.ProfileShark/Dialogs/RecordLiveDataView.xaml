@@ -15,6 +15,7 @@
     xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
     xmlns:controls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:jsuiComponents="clr-namespace:JSUIComponents"
     xmlns:local="clr-namespace:F3H.ProfileShark.Dialogs"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:md="https://github.com/fantasticfiasco/mvvm-dialogs"
@@ -54,13 +55,22 @@
             Grid.Row="2">
             <DockPanel LastChildFill="False">
                 <Button
-                    DockPanel.Dock="Right"
+                    DockPanel.Dock="Left"
                     Focusable="False"
                     Margin="10,5"
                     MinHeight="18"
                     MinWidth="60"
                     x:Name="Close">
                     Close
+                </Button>
+                <Button
+                    DockPanel.Dock="Right"
+                    Focusable="False"
+                    Margin="10,5"
+                    MinHeight="18"
+                    MinWidth="60"
+                    x:Name="CloseAndImport">
+                    Import
                 </Button>
             </DockPanel>
         </Border>
@@ -110,15 +120,22 @@
                         Margin="3"
                         Text="&#xF0026;"
                         VerticalAlignment="Center"
-                        Visibility="{Binding ParseOk, Converter={StaticResource BoolToInverseVisibilityConverterHidden}}" />
+                        Visibility="{Binding ParseOk, Converter={StaticResource BoolToInverseVisibilityConverterHidden}}">
+                        <TextBlock.ToolTip>
+                            Parsing of the ScanSystem file failed. Please select a valid ScanSystem file.
+                        </TextBlock.ToolTip>
+                    </TextBlock>
+
                 </StackPanel>
 
                 <Label Grid.Row="2">Scan Period:</Label>
                 <StackPanel Grid.Row="3" Orientation="Horizontal">
-                    <TextBox
+                    <jsuiComponents:NumericSpinner
                         IsEnabled="{Binding IsRecording, Converter={StaticResource InvertBoolConverter}}"
-                        MinWidth="100"
-                        x:Name="MinScanPeriod" />
+                        Margin="3"
+                        MaxValue="10000"
+                        MinValue="100"
+                        Value="{Binding MinScanPeriod, UpdateSourceTrigger=PropertyChanged}" />
                     <Label>μs</Label>
                 </StackPanel>
                 <Label Grid.Row="4">Output File:</Label>
@@ -154,7 +171,7 @@
                                 VerticalAlignment="Center">
                                 &#xF040C;
                             </TextBlock>
-                            <TextBlock VerticalAlignment="Center">Start</TextBlock>
+                            <TextBlock VerticalAlignment="Center">Record</TextBlock>
                         </StackPanel>
                     </Button>
 
@@ -165,7 +182,7 @@
                         MinWidth="100"
                         Padding="5"
                         x:Name="StopRecording">
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock
                                 FontFamily="{StaticResource MaterialDesignIcons}"
                                 FontSize="16"
@@ -178,11 +195,19 @@
                         </StackPanel>
                     </Button>
                     <Grid>
-                        <TextBlock
-                            HorizontalAlignment="Center"
-                            MaxWidth="200"
-                            VerticalAlignment="Center"
-                            x:Name="Message" />
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock
+                                HorizontalAlignment="Center"
+                                MaxWidth="200"
+                                VerticalAlignment="Center"
+                                x:Name="BytesWritten" />
+                            <TextBlock
+                                HorizontalAlignment="Center"
+                                MaxWidth="200"
+                                VerticalAlignment="Center"
+                                x:Name="ProfilesWritten" />
+
+                        </StackPanel>
                     </Grid>
                 </DockPanel>
             </Grid>
